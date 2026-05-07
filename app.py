@@ -7,13 +7,12 @@ from supabase import create_client
 import qrcode
 import random
 import string
-import numpy as np
 import secrets
 from datetime import datetime
 from flask import Flask, render_template, request, send_file, redirect
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageEnhance
 import fitz  # PyMuPDF
-from qreader import QReader
+
 
 # --- CONFIGURACIÓN DE SUPABASE ---
 SUPABASE_URL = "https://xyjycsnxbcutwwelrogz.supabase.co"
@@ -143,33 +142,6 @@ def generar_imagen_pil(texto_input, modo_azura=False):
                 fuente = ImageFont.truetype(FUENTE_GENERAL, tam)
                 draw.text((x, y), valor, font=fuente, fill=col, anchor="lt")
     return img
-
-def extraer_recorte_pdf(pdf_stream):
-    try:
-        doc = fitz.open(stream=pdf_stream, filetype="pdf")
-        pagina = doc[0]
-        qreader = QReader(model_size='m')
-        pix_busqueda = pagina.get_pixmap(matrix=fitz.Matrix(4, 4))
-        img_busqueda = Image.frombytes("RGB", [pix_busqueda.width, pix_busqueda.height], pix_busqueda.samples)
-        img_pre = ImageOps.grayscale(img_busqueda)
-        img_pre = ImageEnhance.Contrast(img_pre).enhance(2.0)
-        detecciones = qreader.detect_and_decode(image=np.array(img_pre.convert("RGB")), return_detections=True)
-        
-        if detecciones and len(detecciones) > 0:
-            det = detecciones[0]
-            bbox = det.get('bbox_xyxy') if isinstance(det, dict) else getattr(det, 'bbox_xyxy', None)
-            if bbox is not None:
-                padding = 12
-                rect_final = fitz.Rect((bbox[0]/4)-padding, (bbox[1]/4)-padding, (bbox[2]/4)+padding, (bbox[3]/4)+padding)
-            else: rect_final = fitz.Rect(45, 40, 120, 115) 
-        else: rect_final = fitz.Rect(45, 40, 120, 115)
-
-        zoom_final = 4.29
-        pix_recorte = pagina.get_pixmap(clip=rect_final, matrix=fitz.Matrix(zoom_final, zoom_final))
-        img_recorte = Image.frombytes("RGB", [pix_recorte.width, pix_recorte.height], pix_recorte.samples)
-        doc.close()
-        return img_recorte
-    except: return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
