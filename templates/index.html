@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-TIVE</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #333; scroll-behavior: smooth; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 95%; max-width: 1000px; }
+        h2 { margin-top: 0; color: #1a73e8; font-size: 24px; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; margin-bottom: 25px; }
+
+        .config-row { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; }
+        .col-depto { flex: 1; min-width: 250px; } 
+        .col-pregunta { flex: 2; min-width: 400px; }
+
+        .label-title { font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #5f6368; display: block; }
+
+        .search-box { 
+            width: 100%; padding: 14px 16px; border-radius: 8px; border: 2px solid #1a73e8; 
+            font-size: 15px; box-sizing: border-box; background: #fff;
+        }
+
+        .opciones-placa { 
+            background: #f8f9fa; padding: 12px 15px; border-radius: 8px; 
+            border: 1px solid #dadce0;
+        }
+        .radio-group { display: flex; gap: 15px; justify-content: space-around; }
+        .radio-item { 
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; 
+            cursor: pointer; font-size: 13px; background: white; padding: 10px 5px; 
+            border-radius: 6px; border: 1px solid #dee2e6; font-weight: 500;
+        }
+
+        .tabs-container { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; }
+        .header-buttons-left { display: flex; gap: 4px; }
+        .btn-tab { border: none; padding: 8px 16px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; text-decoration: none; display: inline-flex; align-items: center; transition: filter 0.2s; border-radius: 8px 8px 0 0; }
+        .tabs-bottom .btn-tab { border-radius: 0 0 8px 8px; }
+
+        textarea { 
+            width: 100%; height: 260px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; 
+            box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 14px; display: block; 
+            line-height: 1.6; outline: none; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn-copy { background: #6f42c1; } 
+        .btn-follow { background: #007bff; } 
+        .btn-ia { background: #e91e63; } 
+        .btn-clear-mini { background: #f2994a; }
+
+        .buttons { display: flex; gap: 15px; margin-top: 20px; }
+        button.main-btn { flex: 1; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .btn-preview { background: #1a73e8; color: white; }
+        .btn-download { background: #34a853; color: white; }
+        
+        .preview-area { margin-top: 30px; text-align: center; border-top: 2px solid #f1f3f4; padding-top: 25px; }
+        .preview-area img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📝 Panel de Generación TIVE</h2>
+
+    <form method="POST" id="mainForm">
+        <div class="config-row">
+            <div class="col-depto">
+                <label class="label-title">📍 Sede Registral:</label>
+                <input list="deptos" id="depto_input" class="search-box" placeholder="Sede..." value="{{ depto_previo }}" autocomplete="off">
+                <datalist id="deptos">
+                    <option value="ABANCAY"> <option value="ANDAHUAYLAS"> <option value="AREQUIPA">
+                    <option value="AYACUCHO"> <option value="BAGUA"> <option value="BARRANCA">
+                    <option value="CAJAMARCA"> <option value="CALLAO"> <option value="CAMANA">
+                    <option value="CASMA"> <option value="CASTILLA APLAO"> <option value="CAÑETE">
+                    <option value="CHACHAPOYAS"> <option value="CHEPEN"> <option value="CHICLAYO">
+                    <option value="CHIMBOTE"> <option value="CHINCHA"> <option value="CHOTA">
+                    <option value="CUSCO"> <option value="ESPINAR"> <option value="HUACHO">
+                    <option value="HUAMACHUCO"> <option value="HUANCAVELICA"> <option value="HUANCAYO">
+                    <option value="HUANTA"> <option value="HUANUCO"> <option value="HUARAL">
+                    <option value="HUARAZ"> <option value="ICA"> <option value="ILO">
+                    <option value="ISLAY MOLLENDO"> <option value="JAEN"> <option value="JUANJUI">
+                    <option value="JULIACA"> <option value="LA MERCED (SELVA CENTRAL)"> <option value="LIMA">
+                    <option value="MADRE DE DIOS"> <option value="MAYNAS"> <option value="MOQUEGUA">
+                    <option value="MOYOBAMBA"> <option value="NAZCA"> <option value="OTUZCO">
+                    <option value="PASCO"> <option value="PISCO"> <option value="PIURA">
+                    <option value="PUCALLPA"> <option value="PUNO"> <option value="QUILLABAMBA">
+                    <option value="SAN PEDRO"> <option value="SATIPO"> <option value="SICUANI">
+                    <option value="SULLANA"> <option value="TACNA"> <option value="TARAPOTO">
+                    <option value="TARMA"> <option value="TINGO MARIA"> <option value="TRUJILLO">
+                    <option value="TUMBES"> <option value="YURIMAGUAS">
+                </datalist>
+            </div>
+
+            <div class="col-pregunta">
+                <label class="label-title">❓ Formato de Placa:</label>
+                <div class="opciones-placa">
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="pos_guion" value="izq" {% if pos_guion == 'izq' %}checked{% endif %}> Izq. (AB-1234)</label>
+                        <label class="radio-item"><input type="radio" name="pos_guion" value="cen" {% if pos_guion == 'cen' or not pos_guion %}checked{% endif %}> Cen. (ABC-123)</label>
+                        <label class="radio-item"><input type="radio" name="pos_guion" value="der" {% if pos_guion == 'der' %}checked{% endif %}> Der. (1234-AB)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <div class="header-buttons-left">
+                <a href="https://gemini.google.com/" target="_blank" class="btn-tab btn-copy">✨ Gemini</a>
+                <a href="https://consultavehicular.sunarp.gob.pe/" target="_blank" class="btn-tab btn-follow">🔍 SUNARP</a>
+            </div>
+            <button type="button" class="btn-tab btn-clear-mini" onclick="limpiarFormulario()">🧹 Limpiar Todo</button>
+        </div>
+
+        <textarea name="texto_datos" id="texto_datos" placeholder="Pegue la información aquí...">{{ texto }}</textarea>
+
+        <div class="tabs-container tabs-bottom">
+            <div class="header-buttons-left">
+                <a href="https://copialiteral-altoque.sunarp.gob.pe/" target="_blank" class="btn-tab btn-copy">📄 Copia Literal</a>
+                <a href="https://siguelo.sunarp.gob.pe/siguelo/titulo" target="_blank" class="btn-tab btn-ia">🔗 Síguelo</a>
+            </div>
+        </div>
+
+        <input type="hidden" name="depto_nombre" id="depto_nombre" value="{{ depto_previo }}">
+
+        <div class="buttons">
+            <button type="button" onclick="enviarAccion('preview')" class="main-btn btn-preview">🔍 Vista Previa</button>
+            <button type="button" id="btnDescargar" onclick="enviarAccion('download')" class="main-btn btn-download">📥 Descargar PDF</button>
+        </div>
+    </form>
+
+    {% if imagen_preview %}
+    <div class="preview-area">
+        <h3>🖼️ Vista Previa:</h3>
+        <img src="data:image/jpeg;base64,{{ imagen_preview }}">
+    </div>
+    {% endif %}
+</div>
+<script>
+const datosDeptos = {
+    "PIURA": { zona: "ZONA REGISTRAL Nº I", sede: "SEDE REGISTRAL - PIURA", foto: "piura" },
+    "SULLANA": { zona: "ZONA REGISTRAL Nº I", sede: "SEDE REGISTRAL - SULLANA", foto: "sullana" },
+    "TUMBES": { zona: "ZONA REGISTRAL Nº I", sede: "SEDE REGISTRAL - TUMBES", foto: "tumbes" },
+    "CHICLAYO": { zona: "ZONA REGISTRAL Nº II", sede: "SEDE REGISTRAL - CHICLAYO", foto: "chiclayo" },
+    "CAJAMARCA": { zona: "ZONA REGISTRAL Nº II", sede: "SEDE REGISTRAL - CAJAMARCA", foto: "cajamarca" },
+    "BAGUA": { zona: "ZONA REGISTRAL Nº II", sede: "SEDE REGISTRAL - BAGUA", foto: "bagua" },
+    "CHACHAPOYAS": { zona: "ZONA REGISTRAL Nº II", sede: "SEDE REGISTRAL - CHACHAPOYAS", foto: "chachapoyas" },
+    "JAEN": { zona: "ZONA REGISTRAL Nº II", sede: "SEDE REGISTRAL - JAEN", foto: "jaen" },
+    "MOYOBAMBA": { zona: "ZONA REGISTRAL Nº III", sede: "SEDE REGISTRAL - MOYOBAMBA", foto: "moyobamba" },
+    "JUANJUI": { zona: "ZONA REGISTRAL Nº III", sede: "SEDE REGISTRAL - JUANJUI", foto: "juanjui" },
+    "TARAPOTO": { zona: "ZONA REGISTRAL Nº III", sede: "SEDE REGISTRAL - TARAPOTO", foto: "tarapoto" },
+    "YURIMAGUAS": { zona: "ZONA REGISTRAL Nº III", sede: "SEDE REGISTRAL - YURIMAGUAS", foto: "yurimaguas" },
+    "MAYNAS": { zona: "ZONA REGISTRAL Nº IV", sede: "SEDE REGISTRAL - MAYNAS", foto: "maynas" },
+    "TRUJILLO": { zona: "ZONA REGISTRAL Nº V", sede: "SEDE REGISTRAL - TRUJILLO", foto: "trujillo" },
+    "CHEPEN": { zona: "ZONA REGISTRAL Nº V", sede: "SEDE REGISTRAL - CHEPEN", foto: "chepen" },
+    "HUAMACHUCO": { zona: "ZONA REGISTRAL Nº V", sede: "SEDE REGISTRAL - HUAMACHUCO", foto: "huamachuco" },
+    "OTUZCO": { zona: "ZONA REGISTRAL Nº V", sede: "SEDE REGISTRAL - OTUZCO", foto: "otuzco" },
+    "SAN PEDRO": { zona: "ZONA REGISTRAL Nº V", sede: "SEDE REGISTRAL - SAN PEDRO", foto: "sanpedro" },
+    "PUCALLPA": { zona: "ZONA REGISTRAL Nº VI", sede: "SEDE REGISTRAL - PUCALLPA", foto: "pucallpa" },
+    "HUARAZ": { zona: "ZONA REGISTRAL Nº VII", sede: "SEDE REGISTRAL - HUARAZ", foto: "huaraz" },
+    "CASMA": { zona: "ZONA REGISTRAL Nº VII", sede: "SEDE REGISTRAL - CASMA", foto: "casma" },
+    "CHIMBOTE": { zona: "ZONA REGISTRAL Nº VII", sede: "SEDE REGISTRAL - CHIMBOTE", foto: "chimbote" },
+    "HUANCAYO": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - HUANCAYO", foto: "huancayo" },
+    "HUANUCO": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - HUANUCO", foto: "huanuco" },
+    "PASCO": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - PASCO", foto: "pasco" },
+    "HUANCAVELICA": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - HUANCAVELICA", foto: "huancavelica" },
+    "TINGO MARIA": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - TINGO MARIA", foto: "tingomaria" },
+    "LA MERCED (SELVA CENTRAL)": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - LA MERCED (SELVA CENTRAL)", foto: "lamerced" },
+    "SATIPO": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - SATIPO", foto: "satipo" },
+    "TARMA": { zona: "ZONA REGISTRAL Nº VIII", sede: "SEDE REGISTRAL - TARMA", foto: "tarma" },
+    "LIMA": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - LIMA", foto: "lima" },
+    "BARRANCA": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - BARRANCA", foto: "barranca" },
+    "CALLAO": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - CALLAO", foto: "callao" },
+    "CAÑETE": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - CAÑETE", foto: "canete" },
+    "HUACHO": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - HUACHO", foto: "huacho" },
+    "HUARAL": { zona: "ZONA REGISTRAL Nº IX", sede: "SEDE REGISTRAL - HUARAL", foto: "huaral" },
+    "CUSCO": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - CUSCO", foto: "cusco" },
+    "ABANCAY": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - ABANCAY", foto: "abancay" },
+    "ANDAHUAYLAS": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - ANDAHUAYLAS", foto: "andahuaylas" },
+    "ESPINAR": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - ESPINAR", foto: "espinar" },
+    "MADRE DE DIOS": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - MADRE DE DIOS", foto: "madrededios" },
+    "QUILLABAMBA": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - QUILLABAMBA", foto: "quillabamba" },
+    "SICUANI": { zona: "ZONA REGISTRAL Nº X", sede: "SEDE REGISTRAL - SICUANI", foto: "sicuani" },
+    "ICA": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - ICA", foto: "ica" },
+    "AYACUCHO": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - AYACUCHO", foto: "ayacucho" },
+    "CHINCHA": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - CHINCHA", foto: "chincha" },
+    "HUANTA": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - HUANTA", foto: "huanta" },
+    "NAZCA": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - NAZCA", foto: "nazca" },
+    "PISCO": { zona: "ZONA REGISTRAL Nº XI", sede: "SEDE REGISTRAL - PISCO", foto: "pisco" },
+    "AREQUIPA": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - AREQUIPA", foto: "arequipa" },
+    "CAMANA": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - CAMANA", foto: "camana" },
+    "CASTILLA APLAO": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - CASTILLA APLAO", foto: "castillaaplao" },
+    "ILO": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - ILO", foto: "ilo" },
+    "ISLAY MOLLENDO": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - ISLAY MOLLENDO", foto: "mollendo" },
+    "MOQUEGUA": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - MOQUEGUA", foto: "moquehua" },
+    "TACNA": { zona: "ZONA REGISTRAL Nº XII", sede: "SEDE REGISTRAL - TACNA", foto: "tacna" },
+    "PUNO": { zona: "ZONA REGISTRAL Nº XIII", sede: "SEDE REGISTRAL - PUNO", foto: "puno" },
+    "JULIACA": { zona: "ZONA REGISTRAL Nº XIII", sede: "SEDE REGISTRAL - JULIACA", foto: "juliaca" }
+};
+
+const textarea = document.getElementById('texto_datos');
+const inputDepto = document.getElementById('depto_input');
+const hiddenDepto = document.getElementById('depto_nombre');
+
+function actualizarCabeceraSede(sede) {
+    const info = datosDeptos[sede];
+    if (!info) return;
+
+    let lineas = textarea.value.split('\n');
+    
+    // Filtramos para quitar líneas de cabecera viejas si las hubiera
+    let contenidoLimpio = lineas.filter(l => 
+        !l.toLowerCase().startsWith('zona_registral:') && 
+        !l.toLowerCase().startsWith('sede:') && 
+        !l.toLowerCase().startsWith('foto:') &&
+        !l.toLowerCase().startsWith('sede_partida:')
+    ).join('\n').trim();
+    
+    // Insertamos la cabecera nueva arriba de todo
+    textarea.value = `zona_registral: ${info.zona}\nsede: ${info.sede}\nsede_partida: ${sede}\nfoto: ${info.foto}\n${contenidoLimpio}`;
+    
+    document.getElementById('depto_nombre').value = sede;
+}
+
+inputDepto.addEventListener('change', function() {
+    actualizarCabeceraSede(this.value.toUpperCase());
+});
+
+textarea.addEventListener('input', function() {
+    const contenido = this.value;
+
+    // 1. Buscamos la sede con una expresión regular más flexible
+    // El flag 'm' es para multilínea y 'i' para ignorar mayúsculas/minúsculas
+    const matchSede = contenido.match(/^sede_partida:\s*(.*)$/mi);
+    
+    if (matchSede && matchSede[1]) {
+        const sedeDetectada = matchSede[1].trim().toUpperCase();
+        
+        // Verificamos si la sede existe en tu objeto datosDeptos
+        if (datosDeptos[sedeDetectada]) {
+            const inputDepto = document.getElementById('depto_input');
+            const hiddenDepto = document.getElementById('depto_nombre');
+            
+            // Solo actualizamos si es diferente para evitar bucles
+            if (inputDepto.value !== sedeDetectada) {
+                inputDepto.value = sedeDetectada;
+                hiddenDepto.value = sedeDetectada;
+                // Llamamos a la función que carga la Zona Registral y la Foto
+                actualizarCabeceraSede(sedeDetectada);
+            }
+        }
+    }
+
+    // 2. Limpieza automática de corchetes [1], [2] (opcional pero recomendado)
+    const regexCitas = /\[[^\]]*\]/g;
+    if (regexCitas.test(contenido)) {
+        this.value = contenido.replace(regexCitas, '');
+    }
+});
+
+function procesarTextoAntesDeEnviar() {
+    let contenido = textarea.value;
+    const lineas = contenido.split('\n');
+    const nuevosDatos = [];
+    
+    // Detecta qué opción de guion elegiste (Izq, Cen, Der)
+    const radioPos = document.querySelector('input[name="pos_guion"]:checked');
+    const posGuion = radioPos ? radioPos.value : 'cen';
+
+    const camposPesos = ["p_bruto", "p_neto", "carga_util"];
+    const camposMedidas = ["longitud", "altura", "ancho"];
+
+    lineas.forEach(l => {
+        if (l.includes(':')) {
+            let [etiq, val] = l.split(':').map(s => s.trim());
+            let clave = etiq.toLowerCase();
+            
+            // Lógica Maestra de Placa (Borra guiones y los pone según tu elección)
+            if (clave === 'placa') {
+                let puraPlaca = val.replace(/-/g, '').toUpperCase(); 
+                if (posGuion === 'izq' && puraPlaca.length >= 2) {
+                    val = puraPlaca.substring(0, 2) + '-' + puraPlaca.substring(2);
+                } else if (posGuion === 'cen' && puraPlaca.length >= 3) {
+                    val = puraPlaca.substring(0, 3) + '-' + puraPlaca.substring(3);
+                } else if (posGuion === 'der' && puraPlaca.length > 2) {
+                    val = puraPlaca.substring(0, puraPlaca.length - 2) + '-' + puraPlaca.substring(puraPlaca.length - 2);
+                }
+            }
+
+            // Inyección automática de "tn" y "mt" si no los pusiste
+            if (camposPesos.includes(clave) && val !== "" && !val.toLowerCase().includes('tn')) val += " tn";
+            if (camposMedidas.includes(clave) && val !== "" && !val.toLowerCase().includes('mt')) val += " mt";
+            
+            nuevosDatos.push(`${etiq}: ${val}`);
+        } else {
+            nuevosDatos.push(l);
+        }
+    });
+    textarea.value = nuevosDatos.join('\n');
+}
+
+function enviarAccion(tipo) {
+    const form = document.getElementById('mainForm');
+    const btn = document.getElementById('btnDescargar');
+    
+    // Procesamos unidades y variables antes de enviar
+    procesarTextoAntesDeEnviar();
+
+    if (tipo === 'download') {
+        btn.disabled = true;
+        btn.innerText = "⌛ Generando PDF...";
+        form.action = '/descargar';
+        form.submit();
+        setTimeout(() => { btn.disabled = false; btn.innerText = "📥 Descargar PDF"; }, 5000);
+    } else {
+        form.action = '/';
+        form.submit();
+    }
+}
+
+function limpiarFormulario() {
+    textarea.value = ""; 
+    inputDepto.value = "";
+    location.href = "/";
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectorSede = document.getElementById('departamento');
+    const textarea = document.getElementById('datos_texto');
+
+    // --- FUNCIÓN 1: DEL SELECTOR AL TEXTO ---
+    // Cuando cambias manualmente el menú desplegable
+    selectorSede.addEventListener('change', function() {
+        const nuevaSede = selectorSede.value.toUpperCase();
+        let contenido = textarea.value;
+        const regexSede = /^(sede_partida:\s*)(.*)$/mi;
+
+        if (regexSede.test(contenido)) {
+            textarea.value = contenido.replace(regexSede, `$1${nuevaSede}`);
+        } else {
+            // Si no existe la línea, la insertamos al principio o final
+            textarea.value = `sede_partida: ${nuevaSede}\n` + contenido;
+        }
+    });
+
+    // --- FUNCIÓN 2: DEL TEXTO AL SELECTOR ---
+    // Detecta cuando escribes o pegas texto en el área
+    textarea.addEventListener('input', function() {
+        const contenido = textarea.value;
+        // Buscamos lo que sigue después de "sede_partida:"
+        const coincidencia = contenido.match(/^sede_partida:\s*(.*)$/mi);
+
+        if (coincidencia && coincidencia[1]) {
+            const sedeEnTexto = coincidencia[1].trim().toLowerCase();
+            
+            // Recorremos las opciones del selector para ver si alguna coincide
+            for (let i = 0; i < selectorSede.options.length; i++) {
+                if (selectorSede.options[i].value.toLowerCase() === sedeEnTexto) {
+                    selectorSede.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    });
+});
+
+// 1. Al hacer clic, selecciona todo el texto para borrarlo fácilmente
+inputDepto.addEventListener('click', function() {
+    this.select(); 
+});
+
+// 2. Sincronización: Del Selector al Texto
+inputDepto.addEventListener('change', function() {
+    const sedeBusqueda = this.value.toUpperCase();
+    const info = datosDeptos[sedeBusqueda];
+    
+    if (info) {
+        let contenido = textarea.value;
+        // Buscamos si ya existe la línea sede_partida
+        const regexSedePartida = /^(sede_partida:\s*)(.*)$/mi;
+
+        if (regexSedePartida.test(contenido)) {
+            textarea.value = contenido.replace(regexSedePartida, `$1${sedeBusqueda}`);
+        } else {
+            // Si no existe, la añadimos arriba junto con los otros datos de cabecera
+            actualizarCabeceraSede(sedeBusqueda);
+            textarea.value = `sede_partida: ${sedeBusqueda}\n` + textarea.value;
+        }
+        hiddenDepto.value = sedeBusqueda;
+    }
+});
+
+// 3. Sincronización: Del Texto al Selector
+textarea.addEventListener('input', function() {
+    const contenido = this.value;
+    
+    // Si detecta "sede_partida: XXXX" en el texto, actualiza el input de arriba
+    const matchSede = contenido.match(/^sede_partida:\s*(.*)$/mi);
+    if (matchSede && matchSede[1]) {
+        const sedeDetectada = matchSede[1].trim().toUpperCase();
+        if (datosDeptos[sedeDetectada]) {
+            inputDepto.value = sedeDetectada;
+            hiddenDepto.value = sedeDetectada;
+        }
+    }
+
+    // Limpieza automática de corchetes [ ] (Sugerido en tu código original)
+    const regexCitas = /\[[^\]]*\]/g;
+    if (regexCitas.test(contenido)) {
+        this.value = contenido.replace(regexCitas, '').replace(/[ \t]+$/gm, '');
+    }
+});
+
+// 4. Procesamiento de Placa y Unidades antes de enviar
+function procesarTextoAntesDeEnviar() {
+    let contenido = textarea.value;
+    const lineas = contenido.split('\n');
+    const nuevosDatos = [];
+    
+    // Obtener formato de placa seleccionado
+    const radioPos = document.querySelector('input[name="pos_guion"]:checked');
+    const posGuion = radioPos ? radioPos.value : 'cen';
+
+    const camposTN = ["p_bruto", "p_neto", "carga_util"];
+    const camposMT = ["longitud", "altura", "ancho"];
+
+    lineas.forEach(l => {
+        if (l.includes(':')) {
+            let [etiq, val] = l.split(':').map(s => s.trim());
+            let clave = etiq.toLowerCase();
+            
+            // Lógica de Placa
+            if (clave === 'placa') {
+                let puraPlaca = val.replace(/-/g, ''); // Limpiar guiones previos
+                if (posGuion === 'izq' && puraPlaca.length >= 2) {
+                    val = puraPlaca.substring(0, 2) + '-' + puraPlaca.substring(2);
+                } else if (posGuion === 'cen' && puraPlaca.length >= 3) {
+                    val = puraPlaca.substring(0, 3) + '-' + puraPlaca.substring(3);
+                } else if (posGuion === 'der' && puraPlaca.length > 2) {
+                    val = puraPlaca.substring(0, puraPlaca.length - 2) + '-' + puraPlaca.substring(puraPlaca.length - 2);
+                }
+            }
+
+            // Inyección de unidades
+            if (camposTN.includes(clave) && val !== "" && !val.toLowerCase().includes('tn')) val += " tn";
+            if (camposMT.includes(clave) && val !== "" && !val.toLowerCase().includes('mt')) val += " mt";
+            
+            nuevosDatos.push(`${etiq}: ${val}`);
+        } else {
+            nuevosDatos.push(l);
+        }
+    });
+    textarea.value = nuevosDatos.join('\n');
+}
+
+// Este código se ejecuta automáticamente cuando la página termina de cargar
+window.addEventListener('DOMContentLoaded', (event) => {
+    // Tomamos el valor que Flask nos inyectó en la plantilla
+    const deptoRecuperado = "{{ depto_previo }}"; 
+    
+    if (deptoRecuperado && deptoRecuperado !== "") {
+        console.log("Recuperando sede tras vista previa: " + deptoRecuperado);
+        
+        // 1. Forzamos el valor en los inputs
+        document.getElementById('depto_input').value = deptoRecuperado;
+        document.getElementById('depto_nombre').value = deptoRecuperado;
+        
+        // 2. Ejecutamos la lógica de actualización para que cargue la zona y foto
+        // Nota: Asegúrate de que esta función no borre el texto que ya tienes
+        actualizarCabeceraSede(deptoRecuperado); 
+    }
+});
+
+
+</script>
+</body>
+</html>
